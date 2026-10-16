@@ -37,6 +37,13 @@
             "problemMatcher": ["$rustc"]
         },
         {
+            "label": "Horizon: verify release",
+            "type": "shell",
+            "command": "python scripts/verify_release.py",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
             "label": "Horizon: fmt",
             "type": "shell",
             "command": "cargo fmt --all && bun run fmt",

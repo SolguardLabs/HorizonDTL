@@ -4,6 +4,11 @@
     "files.eol": "\n",
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/target": true,
+        "**/coverage": true
+    },
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer"
     },
@@ -13,6 +18,7 @@
     "rust-analyzer.cargo.allTargets": true,
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.check.allTargets": true,
+    "rust-analyzer.cargo.features": "all",
     "prettier.configPath": ".prettierrc",
     "prettier.ignorePath": ".prettierignore"
 }

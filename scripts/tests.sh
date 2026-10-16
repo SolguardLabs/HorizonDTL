@@ -44,5 +44,5 @@ if ! command -v bun >/dev/null 2>&1; then
     exit 127
 fi
 
-cargo test --locked
+cargo test --all-targets --locked
 bun run test:node
