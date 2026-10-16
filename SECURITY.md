@@ -1,90 +1,108 @@
-# Politica de Seguridad
+# Seguridad de HorizonDTL
 
-Horizon DTL esta disenado como una libreria de ledger para liquidacion
-distribuida. La seguridad operacional se apoya en firmas, roles, nonces,
-digests canonicos, limites de riesgo y verificacion de conservacion por activo.
+HorizonDTL aplica autorización criptográfica, aritmética comprobada, límites de riesgo y
+reconciliación contable en cada transición. Este documento define las propiedades que deben
+preservar el núcleo, sus integraciones y el proceso de publicación.
+
+## Límites de confianza
+
+```mermaid
+flowchart TB
+    U[Orden externa] --> V{Validación}
+    V -->|firma| ID[Identidad]
+    V -->|nonce| RP[Protección de repetición]
+    V -->|epoch| TM[Vigencia]
+    V -->|policy| RK[Límites de riesgo]
+    ID --> TX[Transición atómica]
+    RP --> TX
+    TM --> TX
+    RK --> TX
+    TX --> AC[Contabilidad]
+    TX --> JR[Journal + digest]
+    AC --> RC[Reconciliación]
+    JR --> RC
+```
+
+Los bytes autorizados se construyen mediante serialización canónica. Las firmas se vinculan
+al identificador de red, al firmante esperado, al nonce y al objeto económico concreto.
+
+## Invariantes
+
+1. El suministro registrado por activo coincide con cuentas, reservas y fees acumulados.
+2. Un ticket procesado no vuelve a producir una transición.
+3. Los nonces avanzan únicamente después de una operación aceptada.
+4. Una nota no cambia de beneficiario, activo, origen ni digest tras su emisión.
+5. Una ruta solo admite importes y epochs incluidos en su política.
+6. Los fees del relayer permanecen bajo el límite configurado.
+7. El saldo proyectado del vault respeta el suelo operativo.
+8. Los cálculos monetarios usan enteros, operaciones comprobadas y redondeo explícito.
+9. Los roles separan emisión, oráculo, control de vault, tesorería y relay.
+10. Cada mutación económica deja un registro canónico verificable.
+
+## Defensa por capas
+
+```mermaid
+flowchart LR
+    A[Autorización] --> B[Política]
+    B --> C[Aritmética checked]
+    C --> D[Aplicación atómica]
+    D --> E[Journal]
+    E --> F[Reconciliación]
+    F --> G[CI e integridad]
+```
+
+| Capa         | Control principal                                     |
+| ------------ | ----------------------------------------------------- |
+| Identidad    | Ed25519, cuenta derivada y signer esperado            |
+| Repetición   | nonces de ingreso y ticket, más registro de procesado |
+| Temporalidad | epoch del protocolo, madurez y ventana de ruta        |
+| Riesgo       | máximo por ticket, fee, reserva y solvencia           |
+| Contabilidad | débitos/créditos comprobados y conservación           |
+| Evidencia    | journal, operación, actor, importes y digest          |
+| Publicación  | lockfiles, matrices CI y verificación de referencias  |
+
+## Gestión de observaciones
+
+Las observaciones de índice requieren rol autorizado, activo y vault coherentes, epoch
+monótono y tolerancia dentro del dominio configurado. Un consumidor debe tratar como no
+disponible cualquier observación que no cumpla su política temporal.
+
+## Gestión de dependencias
+
+- `Cargo.lock` y `bun.lock` son obligatorios en build y tests.
+- Dependabot revisa Cargo, Bun y GitHub Actions cada semana.
+- Clippy se ejecuta con `-D warnings`.
+- El workflow valida Linux y Windows.
+- La publicación estable verifica que `main`, `production` y `v1.0.0` sean idénticos.
+
+## Proceso de revisión
+
+```mermaid
+sequenceDiagram
+    participant R as Revisor
+    participant M as Mantenedor
+    participant C as CI
+    R->>M: Informe privado reproducible
+    M->>M: Clasificación y aislamiento
+    M->>C: Cambio y pruebas de regresión
+    C-->>M: Formato, lint, build, tests
+    M->>M: Reconciliación y revisión del diff
+    M-->>R: Resolución coordinada
+```
+
+Los informes deben enviarse mediante un canal privado del repositorio y contener versión,
+precondiciones, recorrido reproducible, impacto, resultados esperados y observados, y una
+propuesta de prueba de regresión. No se deben incluir secretos, claves privadas ni datos de
+terceros.
 
 ## Alcance
 
-Esta politica cubre:
+Incluye el crate Rust, el cliente JavaScript, scripts de verificación y workflows. Quedan
+fuera los entornos del integrador, la custodia externa de claves, la disponibilidad de nodos
+de terceros y políticas operativas no representadas en el repositorio.
 
-- el crate Rust `horizon_dtl`;
-- la API publica expuesta por `src/lib.rs`;
-- las transiciones del ledger;
-- los modelos de vaults, notas, rutas y tickets;
-- los tests Rust y JavaScript;
-- scripts de CI y workflows de GitHub Actions.
+## Respuesta
 
-No cubre despliegues externos, frontends, infraestructura fuera del repositorio
-ni integraciones privadas que consuman la libreria.
-
-## Controles de Seguridad
-
-El protocolo implementa los siguientes controles:
-
-- Firmas Ed25519 para ordenes de ingreso y tickets de redencion.
-- Nonces independientes por cuenta para emision y redencion.
-- Identificadores derivados para cuentas, vaults, notas, tickets y
-  transacciones.
-- Digests canonicos para serializacion reproducible.
-- Roles operativos para emisores, beneficiarios, relayers, oraculos,
-  tesoreria y controladores de vault.
-- Limites de riesgo sobre importe, fee y reserva posterior.
-- Observaciones de indice ligadas a autoridad configurada por vault.
-- Journal secuencial con digest de estado.
-- Verificacion de conservacion contable por activo.
-
-## Gestion de Dependencias
-
-Las dependencias Rust se fijan con `Cargo.lock` y las dependencias JavaScript
-con `bun.lock`. Dependabot revisa semanalmente:
-
-- crates de Cargo;
-- paquetes gestionados por Bun;
-- acciones de GitHub.
-
-Toda actualizacion de dependencias debe pasar el pipeline completo antes de ser
-integrada.
-
-## Validacion Requerida
-
-Antes de aceptar cambios se debe ejecutar:
-
-```bash
-bun run ci
-```
-
-Para validar solo tests:
-
-```bash
-bun run test:all
-```
-
-Los cambios sobre transiciones economicas, autorizacion, firmas, rutas,
-vaults, fees u oracle deben incluir pruebas de regresion cuando modifiquen el
-comportamiento observable.
-
-## Comunicacion de Incidencias
-
-Los hallazgos sensibles deben comunicarse de forma privada al equipo mantenedor.
-Un reporte util debe incluir:
-
-- version o commit analizado;
-- descripcion del comportamiento observado;
-- pasos de reproduccion;
-- impacto sobre saldos, autorizacion, rutas o estado;
-- salida relevante de comandos, tests o trazas.
-
-No se deben publicar detalles tecnicos reproducibles en issues publicos antes de
-una revision coordinada.
-
-## Criterios de Aceptacion
-
-Un cambio se considera listo cuando:
-
-- mantiene `cargo fmt` y `clippy` sin advertencias;
-- conserva determinismo de digests;
-- no rompe la conservacion por activo;
-- mantiene verdes los tests Rust y Bun;
-- actualiza pruebas cuando cambia un contrato observable;
-- no reduce controles existentes sin justificacion tecnica.
+Cada informe se confirma, clasifica y reproduce en un entorno aislado. Una corrección se
+acepta cuando conserva las invariantes, añade cobertura, supera la cadena completa y no
+introduce cambios inesperados en los contratos públicos.

@@ -1,4 +1,7 @@
-node_modules/
-target/
-dist/
-vulnerability.md
+/node_modules/
+/target/
+/dist/
+/coverage/
+.env
+.env.*
+!.env.example

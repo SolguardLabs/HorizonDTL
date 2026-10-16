@@ -4,6 +4,7 @@
         "tamasfe.even-better-toml",
         "oven.bun-vscode",
         "esbenp.prettier-vscode",
+        "github.vscode-github-actions",
         "vadimcn.vscode-lldb"
     ]
 }

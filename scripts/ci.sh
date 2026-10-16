@@ -34,6 +34,15 @@ if ! command -v bun >/dev/null 2>&1; then
     fi
 fi
 
+if command -v python >/dev/null 2>&1; then
+    HORIZON_PYTHON="python"
+elif command -v python3 >/dev/null 2>&1; then
+    HORIZON_PYTHON="python3"
+else
+    echo "python debe estar disponible para verificar el contrato de release." >&2
+    exit 127
+fi
+
 if ! command -v cargo >/dev/null 2>&1; then
     echo "cargo no esta disponible en este entorno." >&2
     exit 127
@@ -49,5 +58,6 @@ bun run fmt:check
 cargo fmt --all -- --check
 cargo clippy --all-targets --all-features --locked -- -D warnings
 cargo build --all-targets --locked
-cargo test --locked
+cargo test --all-targets --locked
 bun run test:node
+"$HORIZON_PYTHON" scripts/verify_release.py

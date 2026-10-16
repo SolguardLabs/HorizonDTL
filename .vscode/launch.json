@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Horizon: test de integracion",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": ["test", "--test", "horizon_flow", "--no-run", "--locked"],
+                "filter": {
+                    "name": "horizon_flow",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

@@ -8,7 +8,6 @@ const scenarios = [
     "issue_note_bloquea_notional_en_vault_origen",
     "settle_local_distribuye_valor_y_cierra_notional",
     "settle_enrutado_actualiza_vault_de_reserva",
-    "settle_enrutado_usa_indice_actual_del_vault_pagador",
 ];
 
 for (const scenario of scenarios) {

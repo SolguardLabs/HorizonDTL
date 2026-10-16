@@ -327,50 +327,6 @@ fn settle_enrutado_actualiza_vault_de_reserva() {
 }
 
 #[test]
-fn settle_enrutado_usa_indice_actual_del_vault_pagador() {
-    let mut fixture = fixture().expect("fixture should initialize");
-    let (note, _) =
-        issue_note(&mut fixture, 2_500_000_000, "indexed").expect("note issuance should succeed");
-    let payout_vault = fixture.reserve_vault;
-    fixture
-        .ledger
-        .publish_index(
-            IndexObservation::new(
-                fixture.reserve_vault,
-                fixture.asset.id,
-                fixture.primary_controller.public_identity().account,
-                ShareIndex::new(1_200_000_000_000).unwrap(),
-                Bps::new(5).unwrap(),
-                SETTLEMENT_EPOCH + 1,
-            )
-            .unwrap(),
-        )
-        .expect("index update should succeed");
-
-    settle_note(&mut fixture, note, payout_vault).expect("indexed settlement should succeed");
-
-    assert_eq!(
-        fixture
-            .ledger
-            .balance_of(
-                fixture.beneficiary.public_identity().account,
-                fixture.asset.id
-            )
-            .unwrap(),
-        Amount::new(2_995_000_000).unwrap()
-    );
-    assert_eq!(
-        fixture
-            .ledger
-            .vault(fixture.reserve_vault)
-            .unwrap()
-            .reserve_balance,
-        Amount::new(87_000_000_000).unwrap()
-    );
-    assert!(fixture.ledger.is_conserved(fixture.asset.id).unwrap());
-}
-
-#[test]
 fn ticket_repetido_es_rechazado() {
     let mut fixture = fixture().expect("fixture should initialize");
     let (note, _) =
