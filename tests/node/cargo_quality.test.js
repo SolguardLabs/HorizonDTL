@@ -12,6 +12,7 @@ test("cargo check valida la libreria", () => {
 test("cargo test ejecuta la suite Rust completa", () => {
     const result = runCargo(["test"]);
 
-    assert.match(result.stdout, /7 passed/);
+    assert.match(result.stdout, /6 passed/);
+    assert.match(result.stdout, /8 passed/);
     assert.match(result.stdout, /test result: ok/);
 });

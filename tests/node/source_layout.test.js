@@ -21,13 +21,23 @@ test("lib.rs exporta los dominios publicos principales", () => {
         "SettlementRoute",
         "VaultState",
         "RiskEngine",
+        "SolvencyModel",
     ]) {
-        assert.match(lib, new RegExp(`pub use .*${exportName}`));
+        assert.match(lib, new RegExp(`\\b${exportName}\\b`));
     }
+    assert.match(lib, /pub use solvency::\{/);
 });
 
 test("la estructura de modulos separa ledger, vault, routes y tickets", () => {
-    for (const directory of ["ledger", "vault", "routes", "tickets", "notes", "oracle"]) {
+    for (const directory of [
+        "ledger",
+        "vault",
+        "routes",
+        "tickets",
+        "notes",
+        "oracle",
+        "solvency",
+    ]) {
         assert.equal(fs.existsSync(projectPath("src", directory, "mod.rs")), true);
     }
 });

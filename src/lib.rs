@@ -11,6 +11,7 @@ mod operators;
 mod oracle;
 mod risk;
 mod routes;
+mod solvency;
 mod tickets;
 mod vault;
 
@@ -27,5 +28,8 @@ pub use operators::{OperatorRegistry, OperatorRole, ProtocolConfig};
 pub use oracle::{IndexObservation, OracleBook};
 pub use risk::{RiskEngine, RiskLimits, RiskSnapshot};
 pub use routes::{RouteBook, SettlementRoute};
+pub use solvency::{
+    SolvencyBand, SolvencyInput, SolvencyModel, SolvencyPolicy, SolvencyProjection,
+};
 pub use tickets::{RedemptionTicket, RedemptionTicketAuthorizationView, SignedRedemptionTicket};
 pub use vault::{NoteRecord, VaultConfig, VaultState};

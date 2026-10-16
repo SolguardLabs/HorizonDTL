@@ -8,7 +8,7 @@ test("el crate se publica como libreria Rust", () => {
     const rootPackage = metadata.packages.find((pkg) => pkg.name === "horizon_dtl");
 
     assert.ok(rootPackage);
-    assert.equal(rootPackage.version, "0.1.0");
+    assert.equal(rootPackage.version, "1.0.0");
     assert.equal(rootPackage.edition, "2024");
 
     const targetKinds = rootPackage.targets.map((target) => target.kind.join(","));

@@ -1,22 +1,23 @@
 {
     "name": "horizon-dtl",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "private": true,
     "type": "commonjs",
     "description": "Orquestacion de pruebas JavaScript con Bun para Horizon DTL, una libreria Rust de liquidacion distribuida.",
     "scripts": {
         "test": "bun run test:node",
-        "test:node": "bun test tests/node",
+        "test:node": "bun test --timeout 30000 tests/node",
         "test:rust": "cargo test --locked",
         "test:all": "bun run test:rust && bun run test:node",
         "build": "cargo build --all-targets --locked",
         "check": "cargo fmt --all -- --check && cargo clippy --all-targets --all-features --locked -- -D warnings",
         "ci": "bun run ci:local",
-        "ci:local": "bun run check && bun run build && bun run fmt:check && bun run test:all",
+        "ci:local": "bun run check && bun run build && bun run fmt:check && bun run test:all && bun run verify:release",
         "ci:script": "bash scripts/ci.sh",
         "tests:script": "bash scripts/tests.sh",
-        "fmt": "bunx prettier --write --config .prettierrc --ignore-path .prettierignore \"package.json\" \"tests/**/*.js\"",
-        "fmt:check": "bunx prettier --check --config .prettierrc --ignore-path .prettierignore \"package.json\" \"tests/**/*.js\""
+        "fmt": "bunx prettier --write --config .prettierrc --ignore-path .prettierignore \"*.md\" \"docs/**/*.md\" \"package.json\" \"RELEASE.json\" \"client/**/*.js\" \"tests/**/*.js\" \".github/**/*.yml\" \".vscode/*.json\"",
+        "fmt:check": "bunx prettier --check --config .prettierrc --ignore-path .prettierignore \"*.md\" \"docs/**/*.md\" \"package.json\" \"RELEASE.json\" \"client/**/*.js\" \"tests/**/*.js\" \".github/**/*.yml\" \".vscode/*.json\"",
+        "verify:release": "python scripts/verify_release.py"
     },
     "keywords": [
         "dtl",
